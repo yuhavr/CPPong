@@ -1,14 +1,15 @@
 #include <SFML/Graphics.hpp>
 #include "game_constants.h"
 #include "Paddle.h"
+#include "Ball.h"
 
 const sf::Vector2f paddle_size(game_constants::window_width/40, game_constants::window_height/4);
 
-const int player1_initial_position_x = game_constants::x_distance_from_border_to_paddle;
-const int player1_initial_position_y = game_constants::window_height/2 - paddle_size.y/2;
+const float player1_initial_position_x = game_constants::x_distance_from_border_to_paddle;
+const float player1_initial_position_y = game_constants::window_height/2 - paddle_size.y/2;
 
-const int player2_initial_position_x = game_constants::window_width - paddle_size.x - game_constants::x_distance_from_border_to_paddle;
-const int player2_initial_position_y = game_constants::window_height/2 - paddle_size.y/2;
+const float player2_initial_position_x = game_constants::window_width - paddle_size.x - game_constants::x_distance_from_border_to_paddle;
+const float player2_initial_position_y = game_constants::window_height/2 - paddle_size.y/2;
 
 int main()
 {
@@ -17,8 +18,9 @@ int main()
     Paddle player1{player1_initial_position_x, player1_initial_position_y, paddle_size};
     Paddle player2{player2_initial_position_x, player2_initial_position_y, paddle_size};
 
-    player1.setFillColor(sf::Color::Red);
-    player1.setFillColor(sf::Color::Red);
+    Ball ball(game_constants::window_width/2, game_constants::window_height/2, 20, 10, 10);
+
+    ball.setFillColor(sf::Color::Red);
 
     while (window.isOpen())
     {
@@ -54,9 +56,27 @@ int main()
             player2.moveDown();
         }
 
+        ball.move();
+
+        if (ball.getPosition().y + ball.getRadius() > game_constants::window_height)
+        {
+            ball.invertYVelocity();
+        }
+
+        if (ball.getPosition().y - ball.getRadius() < 0)
+        {
+            ball.invertYVelocity();
+        }
+
+        if (ball.getGlobalBounds().intersects(player1.getGlobalBounds()) || ball.getGlobalBounds().intersects(player2.getGlobalBounds()))
+        {
+            ball.invertXVelocity();
+        }
+
         window.clear();
         window.draw(player1);
         window.draw(player2);
+        window.draw(ball);
         window.display();
     }
     return 0;
