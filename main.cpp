@@ -2,6 +2,7 @@
 #include "game_constants.h"
 #include "Paddle.h"
 #include "Ball.h"
+#include "Score.h"
 
 const sf::Vector2f paddle_size(game_constants::window_width/40, game_constants::window_height/4);
 
@@ -18,7 +19,17 @@ int main()
     Paddle player1{player1_initial_position_x, player1_initial_position_y, paddle_size};
     Paddle player2{player2_initial_position_x, player2_initial_position_y, paddle_size};
 
-    Ball ball(game_constants::window_width/2, game_constants::window_height/2, 20, 10, 10);
+    sf::Font game_font;
+
+    if (!game_font.loadFromFile("assets/fonts/arcade_classic.ttf"))
+    {
+        player1.setFillColor(sf::Color::Red);
+    }
+
+    Score player1_score(game_font, game_constants::font_size, static_cast<float>(game_constants::window_width)/4, static_cast<float>(game_constants::window_height)/15, sf::Color::White);
+    Score player2_score(game_font, game_constants::font_size, static_cast<float>(3*game_constants::window_width)/4, static_cast<float>(game_constants::window_height)/15, sf::Color::White);
+
+    Ball ball{game_constants::window_width/2, game_constants::window_height/2, 20, 10, 10};
 
     ball.setFillColor(sf::Color::Red);
 
@@ -73,10 +84,29 @@ int main()
             ball.invertXVelocity();
         }
 
+        if (ball.getPosition().x + ball.getRadius() > game_constants::window_width)
+        {
+            player1_score.increaseScore();
+            ball.setPosition(game_constants::window_width/2, game_constants::window_height/2);
+        }
+
+        if (ball.getPosition().x - ball.getRadius() < 0)
+        {
+            player2_score.increaseScore();
+            ball.setPosition(game_constants::window_width/2, game_constants::window_height/2);
+        }
+
+        if (player1_score.getScore() > 10 || player2_score.getScore() > 10)
+        {
+            break;
+        }
+
         window.clear();
         window.draw(player1);
         window.draw(player2);
         window.draw(ball);
+        window.draw(player1_score);
+        window.draw(player2_score);
         window.display();
     }
     return 0;

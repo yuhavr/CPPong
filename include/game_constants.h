@@ -9,6 +9,8 @@ namespace game_constants
     constexpr unsigned int x_distance_from_border_to_paddle = 100;
 
     const float dt = 0.01;
+
+    const unsigned int font_size = 150;
 }
 
 #endif // GAME_CONSTANTS_H_INCLUDED
