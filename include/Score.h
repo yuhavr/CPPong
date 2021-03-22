@@ -10,7 +10,7 @@ class Score : public sf::Text
         unsigned int m_score_value = 0;
 
     public:
-        Score(sf::Font &font, unsigned int char_size, float x_position, float y_position, const sf::Color &color);
+        Score(sf::Font &font, unsigned int char_size, float x_position, float y_position, const sf::Color &color = sf::Color::White);
         virtual ~Score();
 
         void increaseScore();

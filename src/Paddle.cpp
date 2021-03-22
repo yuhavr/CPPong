@@ -1,11 +1,11 @@
 #include "Paddle.h"
 
 
-Paddle::Paddle(float x_pos, float y_pos, const sf::Vector2f& paddle_size)
+Paddle::Paddle(float x_pos, float y_pos, const sf::Vector2f& paddle_size, float paddle_speed)
 {
     setPosition(x_pos, y_pos);
     setSize(paddle_size);
-    //setVelocity(velocity);
+    setSpeed(paddle_speed);
 }
 
 Paddle::~Paddle()
@@ -13,12 +13,24 @@ Paddle::~Paddle()
     //dtor
 }
 
-void Paddle::moveUp()
+void Paddle::move()
 {
-    move(0, -1*m_velocity*game_constants::dt);
+    sf::Transformable::move(0, m_velocity*m_speed*game_constants::dt);
 }
 
-void Paddle::moveDown()
+void Paddle::reflect(Ball &ball)
 {
-    move(0, m_velocity*game_constants::dt);
+    if (ball.getPosition().y < this->getPosition().y)
+    {
+        ball.invertYVelocity();
+    }
+    else if (ball.getPosition().y > this->getPosition().y + this->getSize().y)
+    {
+        ball.invertYVelocity();
+    }
+    else
+    {
+        ball.invertXVelocity();
+    }
+
 }

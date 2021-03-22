@@ -16,8 +16,10 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(game_constants::window_width, game_constants::window_height), "CPPong");
 
-    Paddle player1{player1_initial_position_x, player1_initial_position_y, paddle_size};
-    Paddle player2{player2_initial_position_x, player2_initial_position_y, paddle_size};
+    float paddle_speed { 20 };
+
+    Paddle player1{player1_initial_position_x, player1_initial_position_y, paddle_size, paddle_speed};
+    Paddle player2{player2_initial_position_x, player2_initial_position_y, paddle_size, paddle_speed};
 
     sf::Font game_font;
 
@@ -26,10 +28,15 @@ int main()
         player1.setFillColor(sf::Color::Red);
     }
 
-    Score player1_score(game_font, game_constants::font_size, static_cast<float>(game_constants::window_width)/4, static_cast<float>(game_constants::window_height)/15, sf::Color::White);
-    Score player2_score(game_font, game_constants::font_size, static_cast<float>(3*game_constants::window_width)/4, static_cast<float>(game_constants::window_height)/15, sf::Color::White);
+    Score player1_score(game_font, game_constants::font_size, static_cast<float>(game_constants::window_width)/4, static_cast<float>(game_constants::window_height)/15);
+    Score player2_score(game_font, game_constants::font_size, static_cast<float>(3*game_constants::window_width)/4, static_cast<float>(game_constants::window_height)/15);
 
-    Ball ball{game_constants::window_width/2, game_constants::window_height/2, 20, 10, 10};
+    float ball_radius { 15 };
+    float ball_speed { 10 };
+
+    Ball ball{game_constants::window_width/2, game_constants::window_height/2, ball_radius, ball_speed};
+
+    ball.setVelocity(1, -1);
 
     ball.setFillColor(sf::Color::Red);
 
@@ -46,42 +53,67 @@ int main()
             }
         }
 
+        player1.setVelocity(0);
+        player2.setVelocity(0);
+
+        auto old_player1_position = player1.getPosition();
+        auto old_player2_position = player2.getPosition();
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
         {
             if (!(player1.getPosition().y < 0))
-            player1.moveUp();
+            player1.setVelocity(-1);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
         {
             if (!(player1.getPosition().y + player1.getSize().y > game_constants::window_height))
-            player1.moveDown();
+            player1.setVelocity(1);
         }
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
         {
             if (!(player2.getPosition().y < 0))
-            player2.moveUp();
+            player2.setVelocity(-1);
         }
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
         {
             if (!(player2.getPosition().y + player1.getSize().y > game_constants::window_height))
-            player2.moveDown();
+            player2.setVelocity(1);
+        }
+
+        if ((ball.getPosition().y + ball.getRadius() > game_constants::window_height) || (ball.getPosition().y - ball.getRadius() < 0))
+        {
+            ball.invertYVelocity();
         }
 
         ball.move();
 
-        if (ball.getPosition().y + ball.getRadius() > game_constants::window_height)
+        if (ball.collides_with(player1))
         {
-            ball.invertYVelocity();
+            player1.reflect(ball);
         }
 
-        if (ball.getPosition().y - ball.getRadius() < 0)
+        if (ball.collides_with(player2))
         {
-            ball.invertYVelocity();
+            player2.reflect(ball);
         }
 
-        if (ball.getGlobalBounds().intersects(player1.getGlobalBounds()) || ball.getGlobalBounds().intersects(player2.getGlobalBounds()))
+        player1.move();
+        player2.move();
+
+        if (ball.getPosition().x < game_constants::window_width/4)  // checking ball's position to not check collision with second paddle
         {
-            ball.invertXVelocity();
+            if (ball.collides_with(player1))            // if paddle moves into ball, then don't move it :)
+            {
+                player1.setPosition(old_player1_position);
+            }
+        }
+        else if (ball.getPosition().x > 3*game_constants::window_width/4)
+        {
+            if (ball.collides_with(player2))
+            {
+                player2.setPosition(old_player2_position);
+            }
         }
 
         if (ball.getPosition().x + ball.getRadius() > game_constants::window_width)
