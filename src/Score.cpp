@@ -1,7 +1,7 @@
 #include <string>
 #include "Score.h"
 
-Score::Score(sf::Font &font, unsigned int char_size, float x_position, float y_position, const sf::Color &color = sf::Color::White)
+Score::Score(sf::Font &font, unsigned int char_size, float x_position, float y_position, const sf::Color &color)
 {
     setFont(font);
     setCharacterSize(char_size);
